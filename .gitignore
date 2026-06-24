@@ -1,0 +1,42 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Node / Dependencies
+node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# Generated / Test artifacts
+*.csv
+*.log
+server.log
+
+# Environment / Secrets
+.env
+.env.local
+*.key
+*.pem
+
+# Extension build artifacts
+dist/
+build/
+*.crx
+*.zip

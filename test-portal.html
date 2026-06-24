@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Udyam Registration — TEST PORTAL</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #e8e8e8; padding: 20px; }
+    .container { max-width: 700px; margin: 0 auto; }
+    .header { background: #1a237e; color: #fff; padding: 16px 24px; border-radius: 8px 8px 0 0; }
+    .header h1 { font-size: 18px; }
+    .step-indicator { display: flex; gap: 6px; padding: 12px 0; }
+    .step-dot { width: 28px; height: 28px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+    .step-dot.done { background: #28a745; }
+    .step-dot.active { background: #0066cc; }
+    .step-dot.skipped { background: #6c757d; }
+
+    .panel { background: #fff; border: 1px solid #ddd; padding: 20px 24px; }
+    .panel h2 { font-size: 15px; margin-bottom: 14px; color: #333; padding-bottom: 8px; border-bottom: 2px solid #1a237e; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444; }
+    .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #bbb; border-radius: 4px; font-size: 13px; }
+    .form-group input:focus { outline: 2px solid #0066cc; border-color: #0066cc; }
+    .form-group .error-msg { color: #dc3545; font-size: 12px; margin-top: 4px; }
+    .form-group .success-msg { color: #28a745; font-size: 12px; margin-top: 4px; }
+
+    .btn-row { display: flex; gap: 8px; margin-top: 16px; }
+    .btn { padding: 8px 20px; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; font-weight: 600; }
+    .btn-primary { background: #0066cc; color: #fff; }
+    .btn-primary:hover { background: #0052a3; }
+    .btn-success { background: #28a745; color: #fff; }
+    .btn-warning { background: #ffc107; color: #333; }
+    .btn-secondary { background: #6c757d; color: #fff; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .footer { background: #f5f5f5; border-top: 1px solid #ddd; padding: 12px 24px; font-size: 12px; color: #888; border-radius: 0 0 8px 8px; }
+
+    .step-controls { display: flex; gap: 8px; padding: 12px 0; }
+    .step-controls button { padding: 4px 12px; font-size: 11px; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; background: #fff; }
+    .step-controls button:hover { background: #f0f0f0; }
+
+    .log { background: #1a1a2e; color: #0f0; font-family: monospace; font-size: 11px; padding: 12px; margin-top: 12px; border-radius: 4px; max-height: 200px; overflow-y: auto; }
+    .log-entry { margin: 2px 0; }
+
+    .update-panel { border: 2px dashed #ffc107; padding: 16px; margin-top: 12px; border-radius: 4px; background: #fffde7; }
+    .update-panel .panel-label { font-size: 10px; color: #856404; text-transform: uppercase; font-weight: 700; }
+
+    .hidden { display: none !important; }
+
+    .otp-section { background: #e3f2fd; border: 1px solid #90caf9; border-radius: 4px; padding: 12px; margin-top: 8px; }
+    .otp-section h3 { font-size: 13px; color: #1565c0; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🏛️ Udyam Registration — TEST PORTAL (Local Mock)</h1>
+    <div class="step-indicator" id="stepIndicator"></div>
+    <div style="font-size:12px;opacity:0.8;">Simulates all 8 steps for extension testing</div>
+  </div>
+
+  <div class="panel">
+    <!-- ===== STEP 1: AADHAAR ===== -->
+    <div id="step1Panel">
+      <h2>1. Aadhaar Verification</h2>
+      <div class="form-group">
+        <label for="ctl00_ContentPlaceHolder1_txtadharno">Aadhaar Number</label>
+        <input type="text" id="ctl00_ContentPlaceHolder1_txtadharno" maxlength="14" placeholder="Enter 12-digit Aadhaar">
+      </div>
+      <div class="form-group">
+        <label for="ctl00_ContentPlaceHolder1_txtownername">Name of Entrepreneur</label>
+        <input type="text" id="ctl00_ContentPlaceHolder1_txtownername" placeholder="Enter name as on Aadhaar">
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="ctl00_ContentPlaceHolder1_chkDecarationA">
+          I, the holder of the above Aadhaar, hereby give my consent...
+        </label>
+      </div>
+      <div id="ctl00_ContentPlaceHolder1_lblMsg1" class="form-group" style="color:#888;font-size:12px;"></div>
+      <div class="btn-row">
+        <button id="ctl00_ContentPlaceHolder1_btnValidateAadhaar" class="btn btn-primary" onclick="simulateAadhaarSubmit()">Generate OTP</button>
+      </div>
+
+      <!-- OTP Section (appears after clicking Generate OTP) -->
+      <div id="otpSection" class="otp-section hidden">
+        <h3>📱 Aadhaar OTP Verification</h3>
+        <div class="form-group">
+          <label>Enter OTP sent to registered mobile</label>
+          <input type="text" id="otpInputField" maxlength="6" placeholder="Enter 6-digit OTP">
+        </div>
+        <div id="otpVerifyBtnArea"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="simulateOtpVerify()">Verify OTP</button>
+          <button class="btn btn-warning" onclick="simulateResendOtp()">Resend OTP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STEP 2: PAN ===== -->
+    <div id="step2Panel" class="hidden">
+      <h2>2. PAN & Organisation Details</h2>
+      <div class="form-group">
+        <label>Organisation Type / Constitution</label>
+        <select id="panOrgType">
+          <option value="">-- Select --</option>
+          <option value="PROP">Proprietorship</option>
+          <option value="PART">Partnership</option>
+          <option value="LLP">Limited Liability Partnership</option>
+          <option value="PVT">Private Limited Company</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>PAN Number</label>
+        <input type="text" id="panInputField" placeholder="Enter PAN (e.g. ABCDE1234F)" maxlength="10" style="text-transform:uppercase;">
+      </div>
+      <div id="lblPanStatus" class="form-group" style="font-size:12px;"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="simulateValidatePan()">Validate PAN</button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 3: GST ===== -->
+    <div id="step3Panel" class="hidden">
+      <h2>3. GST Applicability</h2>
+      <div class="form-group">
+        <label>Is GST applicable for your business?</label>
+        <div style="margin-top:6px;">
+          <label style="display:inline;margin-right:20px;font-weight:400;">
+            <input type="radio" name="gstRadio" value="Yes"> Yes
+          </label>
+          <label style="display:inline;font-weight:400;">
+            <input type="radio" name="gstRadio" value="No" checked> No
+          </label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="simulateGstNext()">Continue</button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 4: BUSINESS DETAILS ===== -->
+    <div id="step4Panel" class="hidden">
+      <h2>4. Enterprise / Business Details</h2>
+      <div class="form-group">
+        <label>Enterprise / Unit Name</label>
+        <input type="text" id="enterpriseNameField" placeholder="Enterprise name">
+      </div>
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="text" id="businessMobileField" maxlength="10" placeholder="10-digit mobile">
+      </div>
+      <div class="form-group">
+        <label>Email ID</label>
+        <input type="text" id="businessEmailField" placeholder="Email address">
+      </div>
+      <div class="form-group">
+        <label>Social Category</label>
+        <select id="socialCategoryField">
+          <option value="">-- Select --</option>
+          <option value="General">General</option>
+          <option value="OBC">OBC</option>
+          <option value="SC">SC</option>
+          <option value="ST">ST</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Gender</label>
+        <div>
+          <label style="display:inline;margin-right:15px;font-weight:400;"><input type="radio" name="genderRadio" value="Male"> Male</label>
+          <label style="display:inline;margin-right:15px;font-weight:400;"><input type="radio" name="genderRadio" value="Female"> Female</label>
+          <label style="display:inline;font-weight:400;"><input type="radio" name="genderRadio" value="Transgender"> Transgender</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Woman Owned Enterprise?</label>
+        <div>
+          <label style="display:inline;margin-right:15px;font-weight:400;"><input type="radio" name="womanRadio" value="Yes"> Yes</label>
+          <label style="display:inline;font-weight:400;"><input type="radio" name="womanRadio" value="No"> No</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Address — Flat / Door No</label>
+        <input type="text" id="addressFlatField" placeholder="Flat / Door No">
+      </div>
+      <div class="form-group">
+        <label>Address — Premises / Building</label>
+        <input type="text" id="addressPremisesField" placeholder="Premises / Building">
+      </div>
+      <div class="form-group">
+        <label>Address — Village / Town</label>
+        <input type="text" id="addressVillageField" placeholder="Village / Town">
+      </div>
+      <div class="form-group">
+        <label>Address — City</label>
+        <input type="text" id="addressCityField" placeholder="City">
+      </div>
+      <div class="form-group">
+        <label>Pincode</label>
+        <input type="text" id="pincodeField" maxlength="6" placeholder="6-digit pincode">
+      </div>
+      <div class="form-group">
+        <label>State</label>
+        <select id="stateSelect">
+          <option value="">-- Select State --</option>
+          <option value="Andhra Pradesh">Andhra Pradesh</option>
+          <option value="Bihar">Bihar</option>
+          <option value="Madhya Pradesh">Madhya Pradesh</option>
+          <option value="Maharashtra">Maharashtra</option>
+          <option value="Rajasthan">Rajasthan</option>
+          <option value="Uttar Pradesh">Uttar Pradesh</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>District</label>
+        <select id="districtSelect">
+          <option value="">-- Select District --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date of Commencement</label>
+        <input type="date" id="commencementDateField">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="simulateBusinessNext()">Save & Continue</button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 5: NIC ===== -->
+    <div id="step5Panel" class="hidden">
+      <h2>5. NIC Code Selection</h2>
+      <div class="form-group">
+        <label>Sector</label>
+        <div>
+          <label style="display:inline;margin-right:15px;font-weight:400;"><input type="radio" name="sectorRadio" value="Manufacturing"> Manufacturing</label>
+          <label style="display:inline;font-weight:400;"><input type="radio" name="sectorRadio" value="Services" checked> Services</label>
+        </div>
+      </div>
+      <div class="update-panel">
+        <div class="panel-label">⬇ UpdatePanel — NIC Cascade</div>
+        <div class="form-group">
+          <label>NIC 2-digit (Division)</label>
+          <select id="nic2Select" onchange="simulateNicCascade(2)">
+            <option value="">-- Select --</option>
+            <option value="66">66 — Financial & insurance activities</option>
+            <option value="55">55 — Accommodation</option>
+            <option value="85">85 — Education</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>NIC 4-digit (Class)</label>
+          <select id="nic4Select" onchange="simulateNicCascade(4)" disabled>
+            <option value="">-- Select 2-digit first --</option>
+            <option value="6619">6619 — Other financial activities</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>NIC 5-digit (Sub-class)</label>
+          <select id="nic5Select" disabled>
+            <option value="">-- Select 4-digit first --</option>
+            <option value="66190">66190 — Other financial service activities</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="simulateAddActivity()">Add Activity</button>
+        <button class="btn btn-success" onclick="simulateNicNext()">Save & Continue</button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 6: BANK ===== -->
+    <div id="step6Panel" class="hidden">
+      <h2>6. Bank Account Details</h2>
+      <div class="form-group">
+        <label>Bank Account Number</label>
+        <input type="text" id="bankAccountField" placeholder="Enter bank account number">
+      </div>
+      <div class="form-group">
+        <label>Confirm Bank Account Number</label>
+        <input type="text" id="confirmBankAccountField" placeholder="Re-enter bank account number">
+      </div>
+      <div class="form-group">
+        <label>IFSC Code</label>
+        <input type="text" id="ifscField" placeholder="e.g. SBIN0001234" maxlength="11" style="text-transform:uppercase;">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="simulateBankNext()">Save & Continue</button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 7: FINANCIAL ===== -->
+    <div id="step7Panel" class="hidden">
+      <h2>7. Financial Details</h2>
+      <div class="form-group">
+        <label>Investment in Plant & Machinery or Equipment (₹)</label>
+        <input type="text" id="investmentField" placeholder="Enter amount in rupees">
+      </div>
+      <div class="form-group">
+        <label>Annual Turnover (₹)</label>
+        <input type="text" id="turnoverField" placeholder="Enter amount in rupees">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="simulateFinancialNext()">Save & Continue</button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 8: DECLARATION + SUBMIT ===== -->
+    <div id="step8Panel" class="hidden">
+      <h2>8. Declaration & Submission</h2>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="declarationCheck1">
+          I hereby declare that the information provided is true and correct.
+        </label>
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="declarationCheck2">
+          I have read and agree to the terms and conditions.
+        </label>
+      </div>
+
+      <!-- Final OTP section -->
+      <div id="finalOtpSection" class="otp-section hidden">
+        <h3>📧 Final OTP Verification</h3>
+        <div class="form-group">
+          <label>Enter OTP sent to registered email</label>
+          <input type="text" id="finalOtpInputField" maxlength="6" placeholder="Enter 6-digit OTP">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="simulateFinalOtpVerify()">Verify Final OTP</button>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="resultArea" class="hidden" style="background:#d4edda;border:1px solid #c3e6cb;padding:16px;border-radius:4px;margin-top:12px;">
+        <h3 style="color:#155724;">✅ Registration Successful!</h3>
+        <p style="font-size:18px;font-weight:700;color:#155724;margin-top:8px;">
+          UDYAM-UP-24-0001234
+        </p>
+        <p style="font-size:12px;color:#155724;">Your Udyam Registration Number</p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-success" onclick="simulateFinalSubmit()" id="submitBtn">Submit Registration</button>
+      </div>
+    </div>
+
+    <!-- UpdatePanel (simulated) -->
+    <div id="ctl00_ContentPlaceHolder1_UpdatePaneldd1" class="update-panel" style="margin-top:16px;">
+      <div class="panel-label">🔄 UpdatePanel (ASP.NET AJAX)</div>
+      <div id="updatePanelContent" style="font-size:12px;color:#666;">
+        UpdatePanel ready — changes appear here on postback
+      </div>
+    </div>
+
+    <!-- Log -->
+    <div class="log" id="logPanel">
+      <div class="log-entry">[TEST PORTAL] Ready for extension testing</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>Udyam CSP Helper — Test Portal v1.0</strong> | This is a LOCAL MOCK for testing only. Not the real government site.
+  </div>
+</div>
+
+<script>
+// ===== Simulation Functions =====
+function log(msg) {
+  const panel = document.getElementById('logPanel');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  const time = new Date().toLocaleTimeString();
+  entry.textContent = `[${time}] ${msg}`;
+  panel.appendChild(entry);
+  panel.scrollTop = panel.scrollHeight;
+}
+
+function showStep(n) {
+  for (let i = 1; i <= 8; i++) {
+    const el = document.getElementById(`step${i}Panel`);
+    if (el) el.classList.toggle('hidden', i !== n);
+  }
+  // Update step indicator
+  const indicator = document.getElementById('stepIndicator');
+  indicator.innerHTML = '';
+  for (let i = 1; i <= 8; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot';
+    if (i < n) dot.classList.add('done');
+    else if (i === n) dot.classList.add('active');
+    dot.textContent = i;
+    indicator.appendChild(dot);
+  }
+  // Update UpdatePanel content
+  const upContent = document.getElementById('updatePanelContent');
+  upContent.textContent = `Step ${n} active — panel refreshed via UpdatePanel`;
+}
+
+function triggerUpdatePanel() {
+  const upanel = document.getElementById('ctl00_ContentPlaceHolder1_UpdatePaneldd1');
+  // Dispatch mutation event for the observer
+  const el = document.getElementById('updatePanelContent');
+  el.textContent = `UpdatePanel refreshed at ${new Date().toLocaleTimeString()}`;
+  log('UpdatePanel mutation fired');
+}
+
+function simulateAadhaarSubmit() {
+  const aadhaar = document.getElementById('ctl00_ContentPlaceHolder1_txtadharno').value;
+  const name = document.getElementById('ctl00_ContentPlaceHolder1_txtownername').value;
+  const consent = document.getElementById('ctl00_ContentPlaceHolder1_chkDecarationA').checked;
+
+  const msgEl = document.getElementById('ctl00_ContentPlaceHolder1_lblMsg1');
+
+  if (!aadhaar || aadhaar.replace(/\s/g,'').length < 12) {
+    msgEl.innerHTML = '<span style="color:#dc3545;">Please enter valid 12-digit Aadhaar number</span>';
+    log('Aadhaar validation failed: invalid number');
+    return;
+  }
+  if (!name) {
+    msgEl.innerHTML = '<span style="color:#dc3545;">Please enter name</span>';
+    return;
+  }
+  if (!consent) {
+    msgEl.innerHTML = '<span style="color:#dc3545;">Please check the consent checkbox</span>';
+    return;
+  }
+
+  msgEl.innerHTML = '<span style="color:#28a745;">OTP sent to registered mobile number</span>';
+  // Show OTP section
+  document.getElementById('otpSection').classList.remove('hidden');
+  log(`Aadhaar submitted: ${aadhaar}, Name: ${name}`);
+  triggerUpdatePanel();
+}
+
+function simulateOtpVerify() {
+  const otp = document.getElementById('otpInputField').value;
+  if (otp.length < 4) {
+    log('OTP too short — need 6 digits');
+    return;
+  }
+  log(`OTP entered: ${otp}`);
+  document.getElementById('otpSection').classList.add('hidden');
+  document.getElementById('ctl00_ContentPlaceHolder1_lblMsg1').innerHTML = '<span style="color:#28a745;">Aadhaar verified successfully</span>';
+  showStep(2);
+  triggerUpdatePanel();
+  log('Step 1 complete → Step 2 (PAN)');
+}
+
+function simulateResendOtp() {
+  log('OTP resent');
+  document.getElementById('ctl00_ContentPlaceHolder1_lblMsg1').innerHTML = '<span style="color:#28a745;">OTP resent successfully</span>';
+}
+
+function simulateValidatePan() {
+  const pan = document.getElementById('panInputField').value;
+  const orgType = document.getElementById('panOrgType').value;
+  const status = document.getElementById('lblPanStatus');
+
+  if (!orgType) {
+    status.innerHTML = '<span style="color:#dc3545;">Please select Organisation Type</span>';
+    return;
+  }
+  if (!pan || pan.length < 10) {
+    status.innerHTML = '<span style="color:#dc3545;">Please enter valid PAN</span>';
+    return;
+  }
+
+  status.innerHTML = '<span style="color:#28a745;">PAN verified successfully</span>';
+  log(`PAN validated: ${pan}, Org: ${orgType}`);
+  showStep(3);
+  triggerUpdatePanel();
+  log('Step 2 complete → Step 3 (GST)');
+}
+
+function simulateGstNext() {
+  const selected = document.querySelector('input[name="gstRadio"]:checked');
+  log(`GST selection: ${selected ? selected.value : 'None'}`);
+  showStep(4);
+  triggerUpdatePanel();
+  log('Step 3 complete → Step 4 (Business Details)');
+}
+
+function simulateBusinessNext() {
+  const fields = ['enterpriseNameField', 'businessMobileField', 'businessEmailField'];
+  const values = fields.map(f => document.getElementById(f).value);
+  log(`Business saved: ${values.join(', ')}`);
+  showStep(5);
+  triggerUpdatePanel();
+  log('Step 4 complete → Step 5 (NIC)');
+}
+
+function simulateNicCascade(level) {
+  if (level === 2) {
+    const val = document.getElementById('nic2Select').value;
+    if (val) {
+      document.getElementById('nic4Select').disabled = false;
+      document.getElementById('nic4Select').value = '6619';
+      log(`NIC 2-digit selected: ${val}`);
+    }
+  } else if (level === 4) {
+    const val = document.getElementById('nic4Select').value;
+    if (val) {
+      document.getElementById('nic5Select').disabled = false;
+      document.getElementById('nic5Select').value = '66190';
+      log(`NIC 4-digit selected: ${val}`);
+    }
+  }
+  triggerUpdatePanel();
+}
+
+function simulateAddActivity() {
+  log('NIC activity added: 66190 — Other financial service activities');
+}
+
+function simulateNicNext() {
+  const nic5 = document.getElementById('nic5Select').value;
+  if (!nic5) {
+    log('Please select NIC code first');
+    return;
+  }
+  log(`NIC confirmed: ${nic5}`);
+  showStep(6);
+  triggerUpdatePanel();
+  log('Step 5 complete → Step 6 (Bank)');
+}
+
+function simulateBankNext() {
+  const acct = document.getElementById('bankAccountField').value;
+  const confirm = document.getElementById('confirmBankAccountField').value;
+  const ifsc = document.getElementById('ifscField').value;
+  if (acct && confirm && acct !== confirm) {
+    log('Bank account numbers do not match');
+    return;
+  }
+  log(`Bank saved: Account ${acct.slice(-4)}, IFSC: ${ifsc}`);
+  showStep(7);
+  triggerUpdatePanel();
+  log('Step 6 complete → Step 7 (Financial)');
+}
+
+function simulateFinancialNext() {
+  const inv = document.getElementById('investmentField').value;
+  const turn = document.getElementById('turnoverField').value;
+  log(`Financial: Investment ₹${inv || '0'}, Turnover ₹${turn || '0'}`);
+  showStep(8);
+  triggerUpdatePanel();
+  log('Step 7 complete → Step 8 (Declaration & Submit)');
+  // Show final OTP after a moment
+  setTimeout(() => {
+    document.getElementById('finalOtpSection').classList.remove('hidden');
+    log('Final OTP section shown');
+  }, 1000);
+}
+
+function simulateFinalOtpVerify() {
+  const otp = document.getElementById('finalOtpInputField').value;
+  if (otp.length < 4) {
+    log('Final OTP too short');
+    return;
+  }
+  log(`Final OTP verified: ${otp}`);
+  document.getElementById('finalOtpSection').classList.add('hidden');
+  document.getElementById('submitBtn').disabled = false;
+}
+
+function simulateFinalSubmit() {
+  document.getElementById('resultArea').classList.remove('hidden');
+  document.getElementById('submitBtn').disabled = true;
+  log('🎉 REGISTRATION SUCCESSFUL! Udyam: UDYAM-UP-24-0001234');
+  triggerUpdatePanel();
+}
+
+// ===== Init =====
+showStep(1);
+log('Test portal loaded. Waiting for extension...');
+</script>
+</body>
+</html>

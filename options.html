@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Udyam CSP Helper — Options</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 20px; max-width: 640px; margin: 0 auto; background: #f5f5f5; }
+    h1 { font-size: 18px; margin: 0 0 20px 0; color: #1a1a2e; }
+    .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .card h2 { font-size: 14px; margin: 0 0 12px 0; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin: 10px 0 4px; color: #333; }
+    input, select { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; box-sizing: border-box; }
+    input:focus { outline: none; border-color: #0066cc; }
+    .hint { font-size: 11px; color: #888; margin-top: 3px; }
+    .btn { padding: 8px 20px; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; }
+    .btn-primary { background: #0066cc; color: #fff; }
+    .btn-primary:hover { background: #0052a3; }
+    #status { margin-top: 10px; font-size: 13px; padding: 8px 12px; border-radius: 4px; display: none; }
+    #status.success { display: block; background: #d4edda; color: #155724; }
+    #status.error { display: block; background: #f8d7da; color: #721c24; }
+    hr { border: none; border-top: 1px solid #eee; margin: 16px 0; }
+    .field-group { border: 1px solid #eee; border-radius: 4px; padding: 12px; margin-bottom: 8px; }
+    .field-group label { font-size: 12px; margin-top: 6px; }
+    .small-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  </style>
+</head>
+<body>
+  <h1>⚙️ Udyam CSP Helper — Options</h1>
+
+  <div class="card">
+    <h2>Google Sheets</h2>
+    <label>Spreadsheet ID</label>
+    <input id="sheetId" type="text" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+    <div class="hint">From your sheet URL: docs.google.com/spreadsheets/d/<strong>SPREADSHEET_ID</strong>/edit</div>
+
+    <label>API Key</label>
+    <input id="apiKey" type="text" placeholder="AIzaSyA...">
+    <div class="hint">Google Cloud > APIs & Services > Credentials. Restrict to Sheets API + your extension ID.</div>
+
+    <label>Sheet Range</label>
+    <input id="sheetRange" type="text" placeholder="Sheet1!A1:Z" value="Sheet1!A1:Z">
+    <div class="hint">Range to read. Default: Sheet1!A1:Z (header row + data)</div>
+  </div>
+
+  <div class="card">
+    <h2>NIC Code (CSP Defaults)</h2>
+    <label>NIC 2-digit</label>
+    <input id="nic2" type="text" value="66" placeholder="66">
+    <label>NIC 4-digit</label>
+    <input id="nic4" type="text" value="6619" placeholder="6619">
+    <label>NIC 5-digit</label>
+    <input id="nic5" type="text" value="66190" placeholder="66190">
+  </div>
+
+  <div class="card">
+    <h2>Defaults</h2>
+    <div class="small-row">
+      <div>
+        <label>Organisation Type</label>
+        <input id="orgType" type="text" value="Proprietorship">
+      </div>
+      <div>
+        <label>Sector</label>
+        <input id="sector" type="text" value="Services">
+      </div>
+    </div>
+    <div class="small-row">
+      <div>
+        <label>GST Applicable?</label>
+        <input id="gstApplicable" type="text" value="No">
+      </div>
+      <div>
+        <label>Default Employees</label>
+        <input id="defaultEmployees" type="text" value="1">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Field Selectors (Override if portal changes)</h2>
+    <div class="hint">Leave blank to use defaults. Only fill these if the portal element IDs change.</div>
+    <hr>
+    <div class="field-group">
+      <div class="small-row">
+        <div><label>Aadhaar Input</label><input class="fld" data-key="selAadhaar" placeholder="ctl00_ContentPlaceHolder1_txtadharno"></div>
+        <div><label>Name Input</label><input class="fld" data-key="selName" placeholder="ctl00_ContentPlaceHolder1_txtownername"></div>
+      </div>
+      <div class="small-row">
+        <div><label>Consent Checkbox</label><input class="fld" data-key="selConsent" placeholder="ctl00_ContentPlaceHolder1_chkDecarationA"></div>
+        <div><label>Generate OTP Btn</label><input class="fld" data-key="selGenOtp" placeholder="ctl00_ContentPlaceHolder1_btnValidateAadhaar"></div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="small-row">
+        <div><label>OTP Input</label><input class="fld" data-key="selOtp" placeholder="Detected automatically"></div>
+        <div><label>Verify OTP Btn</label><input class="fld" data-key="selVerifyOtp" placeholder="Detected automatically"></div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="small-row">
+        <div><label>PAN Input</label><input class="fld" data-key="selPan" placeholder="e.g. txtPAN"></div>
+        <div><label>Validate PAN Btn</label><input class="fld" data-key="selValidatePan" placeholder="e.g. btnValidatePAN"></div>
+      </div>
+      <div class="small-row">
+        <div><label>Org Type Dropdown</label><input class="fld" data-key="selOrgType" placeholder="e.g. ddlOrgType"></div>
+        <div><label>NIC 2-digit</label><input class="fld" data-key="selNic2" placeholder="e.g. ddlNIC2"></div>
+      </div>
+      <div class="small-row">
+        <div><label>NIC 4-digit</label><input class="fld" data-key="selNic4" placeholder="e.g. ddlNIC4"></div>
+        <div><label>NIC 5-digit</label><input class="fld" data-key="selNic5" placeholder="e.g. ddlNIC5"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Behaviour</h2>
+    <div class="small-row">
+      <div>
+        <label>Delay between actions (ms)</label>
+        <input id="actionDelay" type="number" value="800" min="200" max="5000">
+      </div>
+      <div>
+        <label>OTP timeout (seconds)</label>
+        <input id="otpTimeout" type="number" value="180" min="30" max="600">
+      </div>
+    </div>
+    <label style="margin-top:12px">
+      <input id="dryRun" type="checkbox"> <strong>Dry-run mode</strong> — fill forms but skip actual OTP/submit clicks
+    </label>
+  </div>
+
+  <div style="display:flex;gap:8px">
+    <button id="saveBtn" class="btn btn-primary" style="flex:1">Save Config</button>
+    <button id="testBtn" class="btn" style="flex:1;background:#28a745;color:#fff">Test Connection</button>
+  </div>
+  <div id="status"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>
