@@ -92,6 +92,25 @@ function render() {
 
   // Queue list
   renderQueue();
+
+  // Auto-focus the active input field
+  focusActiveInput();
+}
+
+function focusActiveInput() {
+  const current = state.queue[state.currentIndex];
+  if (!current) return;
+  const inputId = {
+    'OTP_WAIT': 'otpInput',
+    'CAPTCHA_WAIT': 'captchaInput',
+    'FINAL_OTP_WAIT': 'finalOtpInput'
+  }[current.status];
+  if (inputId) {
+    const el = document.getElementById(inputId);
+    if (el && !el.classList.contains('hidden')) {
+      setTimeout(() => el.focus(), 100);
+    }
+  }
 }
 
 function renderQueue() {
@@ -143,7 +162,8 @@ function setupListeners() {
     if (otp.length < 4) return;
     chrome.runtime.sendMessage({ action: 'otpEntered', otp });
     document.getElementById('otpInput').value = '';
-    refreshState();
+    showMsg('OTP submitted, processing...', 'info');
+    setTimeout(refreshState, 1000);
   });
 
   document.getElementById('otpInput').addEventListener('keydown', (e) => {
@@ -177,7 +197,8 @@ function setupListeners() {
     if (otp.length < 4) return;
     chrome.runtime.sendMessage({ action: 'finalOtpEntered', otp });
     document.getElementById('finalOtpInput').value = '';
-    refreshState();
+    showMsg('Final OTP submitted, processing...', 'info');
+    setTimeout(refreshState, 1000);
   });
   document.getElementById('finalOtpInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('finalOtpSubmitBtn').click();
